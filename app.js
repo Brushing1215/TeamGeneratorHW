@@ -7,9 +7,8 @@ const fs = require("fs");
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
-
+const employeeList = []
 const render = require("./lib/htmlRenderer");
-
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
@@ -33,3 +32,95 @@ const render = require("./lib/htmlRenderer");
 // for further information. Be sure to test out each class and verify it generates an
 // object with the correct structure and methods. This structure will be crucial in order
 // for the provided `render` function to work! ```
+const makeTeam =()=>{
+    if (!fs.existsSync(OUTPUT_DIR)) {
+        fs.mkdirSync(OUTPUT_DIR)
+      }
+    fs.writeFile(outputPath, render(employeeList), 'utf8', (err)=>{
+        if(err){
+            console.log(err)
+            return  
+        } 
+        console.log('chart generated')
+    })
+}
+
+const makeEngineer=()=>{
+    inquirer.prompt([
+        {
+          name: "name",
+          type: "input",
+          message: "What is the engineers name?",
+        },
+        {
+            name: "id",
+            type: "input",
+            message: "What is the engineers id?",
+          },
+          {
+            name: "email",
+            type: "input",
+            message: "What is the engineers email?",
+          },
+          {
+            name: "github",
+            type: "input",
+            message: "What is the engineers github username?",
+          }
+      ])
+      .then(({name,id,email, officeNumber})=>{
+          const newEngineer = new Engineer(name,id,email, officeNumber)
+          employeeList.push(newEngineer)
+          whatNext()
+      })
+}
+const whatNext=()=>{
+    inquirer.prompt([
+        {
+            type: "list",
+            name:"whatToDo",
+            message:"What would you like to do?",
+            choices:["Add a Engineer", "Make Chart"]
+        }
+    ]).then(({whatToDo})=>{
+        switch(whatToDo){
+            case "Add a Engineer":
+                makeEngineer()
+                break
+            default:
+                makeTeam()
+        }
+    })
+}
+
+
+const init = () => {
+  inquirer.prompt([
+    {
+      name: "name",
+      type: "input",
+      message: "What is the managers name?",
+    },
+    {
+        name: "id",
+        type: "input",
+        message: "What is the managers id?",
+      },
+      {
+        name: "email",
+        type: "input",
+        message: "What is the managers email?",
+      },
+      {
+        name: "officeNumber",
+        type: "input",
+        message: "What is the managers office number?",
+      }
+  ])
+  .then(({name,id,email, officeNumber})=>{
+      const newManager = new Manager(name,id,email, officeNumber)
+      employeeList.push(newManager)
+      whatNext()
+  })
+};
+init();
